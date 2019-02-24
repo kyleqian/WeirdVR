@@ -4,18 +4,30 @@ using UnityEngine;
 public class SitStill : MonoBehaviour
 {
     [SerializeField] TextMeshPro textMesh;
+    [SerializeField] Material skyboxOriginal;
 
-    Vector3 prevCameraRotation;
+    Vector3 prevCameraPosition;
+    Material skyboxCopy;
+    float cameraPositionDiff;
+
+    void Awake()
+    {
+        skyboxCopy = new Material(RenderSettings.skybox);
+        RenderSettings.skybox = skyboxCopy;
+    }
 
     void Start()
     {
-        prevCameraRotation = Camera.main.transform.localEulerAngles;
+        prevCameraPosition = Camera.main.transform.localPosition;
     }
 
     void Update()
     {
-        Vector3 currCameraRotation = Camera.main.transform.localEulerAngles;
-        textMesh.text = Vector3.Distance(prevCameraRotation, currCameraRotation).ToString("F6");
-        prevCameraRotation = currCameraRotation;
+        Vector3 currCameraPosition = Camera.main.transform.localPosition;
+        cameraPositionDiff = Vector3.Distance(prevCameraPosition, currCameraPosition);
+        prevCameraPosition = currCameraPosition;
+
+        textMesh.text = cameraPositionDiff.ToString("F6");
+        skyboxCopy.SetFloat("_Exposure", Mathf.Clamp01(1000 * cameraPositionDiff));
     }
 }
